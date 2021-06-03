@@ -8,6 +8,13 @@
 #define R 6372795
 #define DISTINATION_OFFSET 10		
 
+
+uint8_t  numbersArr[10] = {0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f};
+uint32_t distance = 0;
+uint8_t	currentnumber=0;
+
+
+
 void SystemInit(void){
 	NVIC_CPAC_R |= 0x00F00000;		//enable FPU - Floating-point numbers
 }
@@ -35,3 +42,18 @@ double getDistance(double p1[],double p2[]){
 int main(void){
 
 }
+
+void SysTick_Handler (void)
+{
+	  
+   if (distance>9999){
+		 
+		 GPIO_PORTE_DATA_R=0x10;
+		 GPIO_PORTB_DATA_R= numbersArr[1];
+	 }
+	else{
+	
+	}
+}
+
+
