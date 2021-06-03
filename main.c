@@ -20,7 +20,6 @@ void SystemInit(void){
 }
 
 void portE_enables_init (void){
-	volatile unsigned long delay ;
 	SYSCTL_RCGCGPIO_R |=0x10;
 		while (( SYSCTL_PRGPIO_R &0x10) == 0);
 		GPIO_PORTE_LOCK_R=0x4c4f434b ;
@@ -31,7 +30,6 @@ void portE_enables_init (void){
 		GPIO_PORTE_DEN_R |=0X1E;
 		GPIO_PORTE_DIR_R |=0X1E;
 		GPIO_PORTE_PUR_R |=0X00;
-		GPIO_PORTE_DATA_R |=0X1E;
 		
 	}
 
