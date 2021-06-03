@@ -13,8 +13,11 @@ void SystemInit(void){
 }
 
 
-double getDistance(){
-
+double getDistance(double p1[],double p2[]){
+   double lat1=p1[0];
+   double lon1=p1[1];
+   double lat2=p2[0];
+   double lon2=p2[1];
 
 }
 
