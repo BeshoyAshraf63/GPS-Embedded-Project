@@ -12,6 +12,13 @@ void SystemInit(void){
 	NVIC_CPAC_R |= 0x00F00000;		//enable FPU - Floating-point numbers
 }
 
+
+double getDistance(){
+
+
+}
+
+
 int main(void){
 
 }
