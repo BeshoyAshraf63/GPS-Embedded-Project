@@ -32,7 +32,26 @@ void portE_enables_init (void){
 		GPIO_PORTE_PUR_R |=0X00;
 		
 	}
+void portB_segments_init(void){
+	if(SYSCTL_PRGPIO_R & 0xFD)!= SYSCTL_PRGPIO_R){} // checks if already the port is enabled and does nothing
+		else{
+			SYSCTL_RCGCGPIO_R |= 0x02;     //Enables port B
+			while((SYSCTL_PRGPIO_R & 0xFD)==SYSCTL_PRGPIO_R){}  //waits until port is into clock
+			GPIO_PORTB_LOCK_R = 0x4C4F434B;
+			GPIO_PORTB_CR_R|= 0x7F; // unlock first seven pins
+			GPIO_PORTB_AMSEL_R &= ~0x7F;
+			GPIO_PORTB_AFSEL_R&=~0x7F;
+			GPIO_PORTB_DEN_R|=0x7F;
+			GPIO_PORTB_PCTL_R = 0x00000000; // used as GPIO so PCTL and AMSEL are reset
+			GPIO_PORTB_DIR_R|=0x7F;
+			GPIO_PORTB_PUR_R &=~0x7F;
+			
+		}
+	
 
+
+	
+}
 double getDistance(double p1[],double p2[]){
    double lat1=p1[0];
    double lon1=p1[1];
