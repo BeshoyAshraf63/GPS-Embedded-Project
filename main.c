@@ -23,6 +23,12 @@ void SystemInit(void){
 	NVIC_CPAC_R |= 0x00F00000;		//enable FPU - Floating-point numbers
 }
 
+void delay(uint32_t times){
+	int i ;
+		for( i = 0; i < times/5 ; i++)
+		{while((NVIC_ST_CTRL_R & 0x10000) == 0){}
+		}
+	}
 void systick_init(){
 		NVIC_ST_CTRL_R = 0;									//disable timer
 		NVIC_ST_RELOAD_R = (16000*5 - 1);		//time, every (16000-1) = 1 millisec
