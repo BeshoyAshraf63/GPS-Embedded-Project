@@ -19,6 +19,12 @@ void SystemInit(void){
 	NVIC_CPAC_R |= 0x00F00000;		//enable FPU - Floating-point numbers
 }
 
+void systick_init(){
+		NVIC_ST_CTRL_R = 0;									//disable timer
+		NVIC_ST_RELOAD_R = (16000*5 - 1);		//time, every (16000-1) = 1 millisec
+		NVIC_ST_CURRENT_R = 0;							//clear current r, clear count flag
+		NVIC_ST_CTRL_R |= 0x07;							//enable timer and set clck src and start inturrept
+}
 void portF_led_init()
 {
 		SYSCTL_RCGC2_R |= 0x00000020;;
@@ -27,7 +33,7 @@ void portF_led_init()
     GPIO_PORTF_DIR_R = 0x0E;
 
 		GPIO_PORTF_AMSEL_R = 0;
-    GPIO_PORTF_DEN_R = 0x0F;         
+    GPIO_PORTF_DEN_R = 0x0F;
 		GPIO_PORTF_LOCK_R = 0x4C4F434B;
 		GPIO_PORTF_CR_R = 0x0F;
     GPIO_PORTF_PUR_R = 0x01;
