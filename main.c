@@ -62,8 +62,7 @@ void portE_enables_init (void){
 
 	}
 void portB_segments_init(void){
-	if(SYSCTL_PRGPIO_R & 0xFD)!= SYSCTL_PRGPIO_R){} // checks if already the port is enabled and does nothing
-		else{
+	
 			SYSCTL_RCGCGPIO_R |= 0x02;     //Enables port B
 			while((SYSCTL_PRGPIO_R & 0xFD)==SYSCTL_PRGPIO_R){}  //waits until port is into clock
 			GPIO_PORTB_LOCK_R = 0x4C4F434B;
@@ -75,7 +74,7 @@ void portB_segments_init(void){
 			GPIO_PORTB_DIR_R|=0x7F;
 			GPIO_PORTB_PUR_R &=~0x7F;
 
-		}
+		
 
 
 
@@ -97,6 +96,19 @@ uint32_t getDistance(double p1[],double p2[]){
    double d=(R*c);
 
      return (uint32_t)d;
+}
+void initFunc(void){
+
+ systick_init();
+ portE_enables_init();
+ portB_segments_init();
+ portF_led_init();
+ uartInit();
+
+
+
+
+
 }
 
 
