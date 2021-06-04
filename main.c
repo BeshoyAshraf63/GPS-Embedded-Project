@@ -13,10 +13,10 @@ uint8_t  numbersArr[10] = {0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f,
 uint32_t distance = 0;
 uint8_t	currentnumber=0;
  uint8_t segment=0;
- uint8_t Arr2[10]={0,1,2,3,4,5,6,7,8,9};     //an array for knowing what is the current number 
- uint32_t Arr3[3]={1000,100,10};       //to split the distance into digits  
- 
- 
+ uint8_t Arr2[10]={0,1,2,3,4,5,6,7,8,9};     //an array for knowing what is the current number
+ uint32_t Arr3[3]={1000,100,10};       //to split the distance into digits
+
+
 
 
 void SystemInit(void){
@@ -31,16 +31,17 @@ void systick_init(){
 }
 void portF_led_init()
 {
-		SYSCTL_RCGC2_R |= 0x00000020;;
+		SYSCTL_RCGC2_R |= 0x00000020;;   /* enable clock to GPIOF */
 		GPIO_PORTF_AFSEL_R =0x00;
 		GPIO_PORTF_PCTL_R = 0;
-    GPIO_PORTF_DIR_R = 0x0E;
+		GPIO_PORTF_DIR_R = 0x0E;         /* set PORTF3 pin as output (LED) pin */
+																		 /* and PORTF4 as input, SW1 is on PORTF4 */
 
 		GPIO_PORTF_AMSEL_R = 0;
-    GPIO_PORTF_DEN_R = 0x0F;
+		GPIO_PORTF_DEN_R = 0x0F;         /* set PORTF pins 1 to 4 as digital pins */
 		GPIO_PORTF_LOCK_R = 0x4C4F434B;
 		GPIO_PORTF_CR_R = 0x0F;
-    GPIO_PORTF_PUR_R = 0x01;
+		GPIO_PORTF_PUR_R = 0x01;         /* enable pull up for pin 0 */
 
 }
 
@@ -116,10 +117,10 @@ void SysTick_Handler (void)
 			if(currentnumber==Arr2[i]){
 			GPIO_PORTE_DATA_R=segment+1;
 			GPIO_PORTB_DATA_R=numbersArr[Arr2[i]];
-		} 
+		}
 		segment++;
 		n++;
-	                
-	
+
+
 	}
 }}
