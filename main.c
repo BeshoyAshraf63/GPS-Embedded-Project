@@ -69,7 +69,7 @@ void portE_enables_init (void){
 void portB_segments_init(void){
 	
 			SYSCTL_RCGCGPIO_R |= 0x02;     //Enables port B
-			while(SYSCTL_PRGPIO_R & 0x02 == 0){}  //waits until port is into clock
+			while((SYSCTL_PRGPIO_R & 0x02) == 0){}  //waits until port is into clock
 			GPIO_PORTB_LOCK_R = 0x4C4F434B;
 			GPIO_PORTB_CR_R|= 0x7F; // unlock first seven pins
 			GPIO_PORTB_AMSEL_R &= ~0x7F;
@@ -138,7 +138,12 @@ __irq void SysTick_Handler(){
 	else currentNumber++;
 }
 int main(void){
-
+	initFunc();
+	__enable_irq();
+	delay(1000);
+	while(1){
+		
+	}
 }
 
 
