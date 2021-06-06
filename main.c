@@ -81,7 +81,7 @@ void portB_segments_init(void){
 
 
 }
-uint32_t getDistance(double p1[],double p2[]){
+double getDistance(double p1[],double p2[]){
    double lat1=p1[0];
    double lon1=p1[1];
    double lat2=p2[0];
@@ -96,7 +96,7 @@ uint32_t getDistance(double p1[],double p2[]){
    double c=2*atan2(sqrt(a),sqrt((1-a)));
    double d=(R*c);
 
-     return (uint32_t)d;
+     return d;
 }
 
 
