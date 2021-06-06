@@ -14,7 +14,7 @@ double distance = 0;
 uint8_t currentNumber=0;
 uint8_t reachedDistination=0;
 
- 
+
 
 
 
@@ -41,14 +41,14 @@ void portF_led_init()
 
       GPIO_PORTF_LOCK_R = 0x4C4F434B; // unlock
   		GPIO_PORTF_CR_R = 0x0F;
-  		GPIO_PORTF_AFSEL_R =0x00; // disable alternative functions
+  		GPIO_PORTF_AFSEL_R &=~(0x0E); // disable alternative functions
   		GPIO_PORTF_PCTL_R = 0;
   		GPIO_PORTF_DIR_R = 0x0E;        // set pins 1,2,3 as output
 
-  		GPIO_PORTF_AMSEL_R = 0;
-  		GPIO_PORTF_DEN_R = 0x0F;         /* set PORTF pins 1 to 4 as digital pins */
+  		GPIO_PORTF_AMSEL_R &= ~(0x0E);
+  		GPIO_PORTF_DEN_R = 0x0E;         /* set PORTF pins 1 to 4 as digital pins */
 
-  		GPIO_PORTF_PUR_R = 0x01;         /* enable pull up for pin 0 */
+
 
 }
 
@@ -67,7 +67,7 @@ void portE_enables_init (void){
 
 	}
 void portB_segments_init(void){
-	
+
 			SYSCTL_RCGCGPIO_R |= 0x02;     //Enables port B
 			while((SYSCTL_PRGPIO_R & 0x02) == 0){}  //waits until port is into clock
 			GPIO_PORTB_LOCK_R = 0x4C4F434B;
@@ -79,7 +79,7 @@ void portB_segments_init(void){
 			GPIO_PORTB_DIR_R|=0x7F;
 			GPIO_PORTB_PUR_R &=~0x7F;
 
-		
+
 
 
 
@@ -108,7 +108,7 @@ void initFunc(void){
  portE_enables_init();
  portB_segments_init();
  portF_led_init();
- 
+
 
 }
 
@@ -142,20 +142,20 @@ int main(void){
 	__enable_irq();
 	delay(1000);
 	while(1){
-		double point1[2]; 
+		double point1[2];
 		double point2[2];
 		double point3[2];
-		
+
 		distance = 1234;
 		delay(5000);
-		
+
 		point1[0] = 30.06314876356195;	//lat 1
 		point1[1] = 31.278634458791736;	//long 1
 		point2[0] = 30.063654887314705;	//lat 2
 		point2[1] = 31.280120463348382;	//long 2
 		point3[0] = 30.063749460433865;	//lat 3
 		point3[1] = 31.27837988633654;	//long 3
-		
+
 		distance  = getDistance(point1, point3);
 		if(distance > 100){
 			GPIO_PORTF_DATA_R |= 0x08;
@@ -169,5 +169,3 @@ int main(void){
 		GPIO_PORTF_DATA_R &= ~0x08;
 	}
 }
-
-
