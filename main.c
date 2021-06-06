@@ -142,8 +142,19 @@ int main(void){
 	__enable_irq();
 	delay(1000);
 	while(1){
+		double point1[2]; 
+		double point2[2];
+		double point3[2];
+		
 		distance = 1234;
 		delay(5000);
+		
+		point1[0] = 30.06314876356195;	//lat 1
+		point1[1] = 31.278634458791736;	//long 1
+		point2[0] = 30.063654887314705;	//lat 2
+		point2[1] = 31.280120463348382;	//long 2
+		point3[0] = 30.063749460433865;	//lat 3
+		point3[1] = 31.27837988633654;	//long 3
 	}
 }
 
