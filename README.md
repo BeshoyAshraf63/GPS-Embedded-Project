@@ -11,4 +11,5 @@ This wasn't possible without interrupts because any delays in the code would del
 - Delay function using Systick timer which is very accurate
 
 ## Milestone 1 Video Link - the video is in the google drive link
-https://drive.google.com/drive/folders/1meHJXxR7G9u8Ix5Ae7IydJRoFLhzxYVj?usp=sharing](https://drive.google.com/drive/folders/1meHJXxR7G9u8Ix5Ae7IydJRoFLhzxYVj?usp=sharing)
+
+-[https://drive.google.com/drive/folders/1meHJXxR7G9u8Ix5Ae7IydJRoFLhzxYVj?usp=sharing](https://drive.google.com/drive/folders/1meHJXxR7G9u8Ix5Ae7IydJRoFLhzxYVj?usp=sharing)
