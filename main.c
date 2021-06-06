@@ -142,7 +142,8 @@ int main(void){
 	__enable_irq();
 	delay(1000);
 	while(1){
-		
+		distance = 1234;
+		delay(5000);
 	}
 }
 
