@@ -155,6 +155,18 @@ int main(void){
 		point2[1] = 31.280120463348382;	//long 2
 		point3[0] = 30.063749460433865;	//lat 3
 		point3[1] = 31.27837988633654;	//long 3
+		
+		distance  = getDistance(point1, point3);
+		if(distance > 100){
+			GPIO_PORTF_DATA_R |= 0x08;
+		}
+		delay(5000);
+		distance  = getDistance(point1, point2);
+		if(distance > 100){
+			GPIO_PORTF_DATA_R |= 0x08;
+		}
+		delay(5000);
+		GPIO_PORTF_DATA_R &= ~0x08;
 	}
 }
 
