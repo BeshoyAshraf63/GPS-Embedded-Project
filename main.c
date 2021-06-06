@@ -11,11 +11,10 @@
 
 uint8_t  numbersArr[10] = {0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f};
 uint32_t distance = 0;
-uint8_t	currentnumber=0;
- uint8_t segment=0;
- uint8_t Arr2[10]={0,1,2,3,4,5,6,7,8,9};     //an array for knowing what is the current number
- uint32_t Arr3[3]={1000,100,10};       //to split the distance into digits
+uint8_t currentNumber=0;
+uint8_t reachedDistination=0;
 
+ 
 
 
 
@@ -70,7 +69,7 @@ void portE_enables_init (void){
 void portB_segments_init(void){
 	
 			SYSCTL_RCGCGPIO_R |= 0x02;     //Enables port B
-			while((SYSCTL_PRGPIO_R & 0xFD)==SYSCTL_PRGPIO_R){}  //waits until port is into clock
+			while(SYSCTL_PRGPIO_R & 0x02 == 0){}  //waits until port is into clock
 			GPIO_PORTB_LOCK_R = 0x4C4F434B;
 			GPIO_PORTB_CR_R|= 0x7F; // unlock first seven pins
 			GPIO_PORTB_AMSEL_R &= ~0x7F;
@@ -109,38 +108,37 @@ void initFunc(void){
  portE_enables_init();
  portB_segments_init();
  portF_led_init();
- uartInit();
-
-
-
-
+ 
 
 }
 
-
+__irq void SysTick_Handler(){
+	uint32_t number = 0;
+	uint32_t intDistance = (uint32_t)distance;
+	GPIO_PORTE_DATA_R &= ~(0x17);
+	if(intDistance < 10000){
+		if(currentNumber == 0){
+			number = intDistance % 10;
+		}else if(currentNumber == 1){
+			number = intDistance % 100;
+			number /= 10;
+		}else if(currentNumber == 2){
+			number = intDistance % 1000;
+			number /= 100;
+		}else{
+			number = intDistance / 1000;
+		}
+		GPIO_PORTB_DATA_R = numbersArr[number];
+		GPIO_PORTE_DATA_R = (1 << (currentNumber + 1));
+	}else{
+		GPIO_PORTB_DATA_R = numbersArr[1];
+		GPIO_PORTE_DATA_R = (1 << 4);
+	}
+	if(currentNumber == 3) currentNumber = 0;
+	else currentNumber++;
+}
 int main(void){
 
 }
 
-void SysTick_Handler (void)
-{
 
-   if (distance>9999){
-
-		 GPIO_PORTE_DATA_R=0x10;
-		 GPIO_PORTB_DATA_R= numbersArr[1];
-	 }
-	else{
-	uint8_t n=0;
-	currentnumber=distance/Arr3[n];
-    for(uint8_t i=0; i<10;i++){
-			if(currentnumber==Arr2[i]){
-			GPIO_PORTE_DATA_R=segment+1;
-			GPIO_PORTB_DATA_R=numbersArr[Arr2[i]];
-		}
-		segment++;
-		n++;
-
-
-	}
-}}
