@@ -10,7 +10,7 @@
 
 
 uint8_t  numbersArr[10] = {0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f};
-uint32_t distance = 0;
+double distance = 0;
 uint8_t currentNumber=0;
 uint8_t reachedDistination=0;
 
