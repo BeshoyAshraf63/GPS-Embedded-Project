@@ -5,17 +5,16 @@
 #include "tm4c123gh6pm.h"
 
 #define PI 3.14159265359
-#define R 6372795
+#define R 6371000
 #define DISTINATION_OFFSET 10
 
 
 uint8_t  numbersArr[10] = {0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f};
 uint32_t distance = 0;
-uint8_t	currentnumber=0;
- uint8_t segment=0;
- uint8_t Arr2[10]={0,1,2,3,4,5,6,7,8,9};     //an array for knowing what is the current number
- uint32_t Arr3[3]={1000,100,10};       //to split the distance into digits
+uint8_t currentNumber=0;
+uint8_t reachedDistination=0;
 
+ 
 
 
 
@@ -23,6 +22,12 @@ void SystemInit(void){
 	NVIC_CPAC_R |= 0x00F00000;		//enable FPU - Floating-point numbers
 }
 
+void delay(uint32_t times){
+	int i ;
+		for( i = 0; i < times/5 ; i++)
+		{while((NVIC_ST_CTRL_R & 0x10000) == 0){}
+		}
+	}
 void systick_init(){
 		NVIC_ST_CTRL_R = 0;									//disable timer
 		NVIC_ST_RELOAD_R = (16000*5 - 1);		//time, every (16000-1) = 1 millisec
@@ -62,10 +67,9 @@ void portE_enables_init (void){
 
 	}
 void portB_segments_init(void){
-	if(SYSCTL_PRGPIO_R & 0xFD)!= SYSCTL_PRGPIO_R){} // checks if already the port is enabled and does nothing
-		else{
+	
 			SYSCTL_RCGCGPIO_R |= 0x02;     //Enables port B
-			while((SYSCTL_PRGPIO_R & 0xFD)==SYSCTL_PRGPIO_R){}  //waits until port is into clock
+			while((SYSCTL_PRGPIO_R & 0x02) == 0){}  //waits until port is into clock
 			GPIO_PORTB_LOCK_R = 0x4C4F434B;
 			GPIO_PORTB_CR_R|= 0x7F; // unlock first seven pins
 			GPIO_PORTB_AMSEL_R &= ~0x7F;
@@ -75,7 +79,7 @@ void portB_segments_init(void){
 			GPIO_PORTB_DIR_R|=0x7F;
 			GPIO_PORTB_PUR_R &=~0x7F;
 
-		}
+		
 
 
 
@@ -98,31 +102,72 @@ double getDistance(double p1[],double p2[]){
 
      return d;
 }
+void initFunc(void){
 
-
-int main(void){
+ systick_init();
+ portE_enables_init();
+ portB_segments_init();
+ portF_led_init();
+ 
 
 }
 
-void SysTick_Handler (void)
-{
-
-   if (distance>9999){
-
-		 GPIO_PORTE_DATA_R=0x10;
-		 GPIO_PORTB_DATA_R= numbersArr[1];
-	 }
-	else{
-	uint8_t n=0;
-	currentnumber=distance/Arr3[n];
-    for(uint8_t i=0; i<10;i++){
-			if(currentnumber==Arr2[i]){
-			GPIO_PORTE_DATA_R=segment+1;
-			GPIO_PORTB_DATA_R=numbersArr[Arr2[i]];
+__irq void SysTick_Handler(){
+	uint32_t number = 0;
+	uint32_t intDistance = (uint32_t)distance;
+	GPIO_PORTE_DATA_R &= ~(0x17);
+	if(intDistance < 10000){
+		if(currentNumber == 0){
+			number = intDistance % 10;
+		}else if(currentNumber == 1){
+			number = intDistance % 100;
+			number /= 10;
+		}else if(currentNumber == 2){
+			number = intDistance % 1000;
+			number /= 100;
+		}else{
+			number = intDistance / 1000;
 		}
-		segment++;
-		n++;
-
-
+		GPIO_PORTB_DATA_R = numbersArr[number];
+		GPIO_PORTE_DATA_R = (1 << (currentNumber + 1));
+	}else{
+		GPIO_PORTB_DATA_R = numbersArr[1];
+		GPIO_PORTE_DATA_R = (1 << 4);
 	}
-}}
+	if(currentNumber == 3) currentNumber = 0;
+	else currentNumber++;
+}
+int main(void){
+	initFunc();
+	__enable_irq();
+	delay(1000);
+	while(1){
+		double point1[2]; 
+		double point2[2];
+		double point3[2];
+		
+		distance = 1234;
+		delay(5000);
+		
+		point1[0] = 30.06314876356195;	//lat 1
+		point1[1] = 31.278634458791736;	//long 1
+		point2[0] = 30.063654887314705;	//lat 2
+		point2[1] = 31.280120463348382;	//long 2
+		point3[0] = 30.063749460433865;	//lat 3
+		point3[1] = 31.27837988633654;	//long 3
+		
+		distance  = getDistance(point1, point3);
+		if(distance > 100){
+			GPIO_PORTF_DATA_R |= 0x08;
+		}
+		delay(5000);
+		distance  = getDistance(point1, point2);
+		if(distance > 100){
+			GPIO_PORTF_DATA_R |= 0x08;
+		}
+		delay(5000);
+		GPIO_PORTF_DATA_R &= ~0x08;
+	}
+}
+
+
