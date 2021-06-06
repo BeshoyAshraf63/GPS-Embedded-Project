@@ -5,7 +5,7 @@
 #include "tm4c123gh6pm.h"
 
 #define PI 3.14159265359
-#define R 6372795
+#define R 6371000
 #define DISTINATION_OFFSET 10
 
 
