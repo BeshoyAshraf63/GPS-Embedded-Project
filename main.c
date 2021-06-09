@@ -138,6 +138,22 @@ __irq void SysTick_Handler(){
 	if(currentNumber == 3) currentNumber = 0;
 	else currentNumber++;
 }
+void uart_Gps_Init(void){
+SYCTL_RCGCUART_R |= 0x08; //unlock UART3
+SYCTL_RCGPIO_R |= 0x04;   // ENABLE clock for C
+while(SYCTL_RCGPIO_R & 0x04 =0){}
+GPIO_PORTC_LOCK_R = 0x4C4F434B; // remove lock
+GPIO_PORTC_CR_R = 0xC0;
+UART3_IBRD_R=104;  // Baud Rate at 9600
+UART3_FBRD_R=11;   // fraction of Baud rate
+UART3_LCRH_R=0x0070; // 1 stop bit and 8 bit length and also parity off
+UART3_CTL_R=0x0301;
+GPIO_PORTC_AFSEL_R |=0xC0;
+GPIO_PORTC_PCTL_R = (GPIO_PORTC_PCTL_R & 00FFFFFF ) + 0x11000000; // use last two pins as UART
+GPIO_PORTC_DEN_R |= 0xC0;
+GPIO_PORTC_AMSEL_R &~ 0xC0;
+
+}
 int main(void){
 	initFunc();
 	__enable_irq();
