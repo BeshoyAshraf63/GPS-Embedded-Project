@@ -152,8 +152,25 @@ GPIO_PORTC_AFSEL_R |=0xC0;
 GPIO_PORTC_PCTL_R = (GPIO_PORTC_PCTL_R & 00FFFFFF ) + 0x11000000; // use last two pins as UART
 GPIO_PORTC_DEN_R |= 0xC0;
 GPIO_PORTC_AMSEL_R &~ 0xC0;
-
 }
+	
+int validateData(char *x){
+    char *y=strtok(x,",");
+    char n[]="GPRMC";
+    printf("%s\n",y);
+    int z= strcmp ( n , y);
+   if (z==0)
+    {
+     return 1;
+    }
+   if(z!=0)
+    {
+     return 0;
+    }
+}
+
+
+
 int main(void){
 	initFunc();
 	__enable_irq();
