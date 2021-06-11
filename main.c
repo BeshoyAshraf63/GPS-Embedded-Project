@@ -14,6 +14,10 @@ uint8_t  numbersArr[10] = {0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f,
 double distance = 0;
 uint8_t currentNumber=0;
 uint8_t reachedDistination=0;
+double lastPoint[2]={0,0};
+double currentPoint[2]={0,0};
+double destinationPoint[2]={30.063921528763213,31.280019999858254};
+
 
 
 
