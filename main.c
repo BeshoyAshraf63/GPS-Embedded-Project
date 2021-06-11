@@ -187,7 +187,16 @@ void uartGpsReadLine(char *enteredStr, uint32_t maxSize){
 		*enteredStr = '\0';
 }
 
+void uartWifiWriteChar(char*data){
+ while((UART0_FR_R & 0x0020) != 0);
+	UART2_DR_R = (volatile uint32_t )data;
 
+}
+void setLastPoint(void){
+currentPoint[0]=lastPoint[0];
+currentPoint[1]=lastPoint[1];
+ 
+}
 
 int main(void){
 	initFunc();
