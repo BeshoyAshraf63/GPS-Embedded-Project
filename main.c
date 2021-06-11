@@ -153,7 +153,7 @@ GPIO_PORTC_PCTL_R = (GPIO_PORTC_PCTL_R & 00FFFFFF ) + 0x11000000; // use last tw
 GPIO_PORTC_DEN_R |= 0xC0;
 GPIO_PORTC_AMSEL_R &~ 0xC0;
 }
-	
+
 int validateData(char *x){
     char *y=strtok(x,",");
     char n[]="GPRMC";
@@ -167,6 +167,20 @@ int validateData(char *x){
     {
      return 0;
     }
+}
+
+void uartGpsReadLine(char *enteredStr, uint32_t maxSize){
+		uint32_t length = 0;
+		while(uartGpsReadChar() != '$'){}
+		while(length < maxSize){
+			*enteredStr = uartGpsReadChar();
+
+			if(*enteredStr  == '*') 	break;
+			enteredStr ++;
+			length++;
+		}
+		enteredStr ++;
+		*enteredStr = '\0';
 }
 
 
