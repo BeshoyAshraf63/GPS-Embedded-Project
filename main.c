@@ -255,7 +255,7 @@ lastPoint[1]=currentPoint[1];
  
 }
 char uartGpsReadChar(void){
-while((UART3_FR_R & 0x010)!=0)){}
+while((UART3_FR_R & 0x010)!=0){}
 
 
 return UART3_DR_R;
