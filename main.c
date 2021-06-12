@@ -113,6 +113,9 @@ void initFunc(void){
  portE_enables_init();
  portB_segments_init();
  portF_led_init();
+uart_GpsInit();
+uart_Wifi_Init();
+GPIO_PORTF_DATA_R|= 0x02;
 
 
 }
@@ -196,6 +199,18 @@ void setLastPoint(void){
 lastPoint[0]=currentPoint[0];
 lastPoint[1]=currentPoint[1];
  
+}
+char uartGpsReadChar(void){
+while((UART3_FR_R & 0x010)!=0)){}
+
+
+return UART3_DR_R;
+}
+void uartWifiWriteString(char * data ){
+for(int n=0; n<strlen(data); n++){
+uartWifiWriteChar(data[n]);
+}
+
 }
 
 int main(void){
