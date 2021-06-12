@@ -237,6 +237,15 @@ void uartWifiWriteChar(char data){
 	UART2_DR_R = data;
 
 }
+int8_t getLength(char str){
+	char ptr = str;
+	uint32_t counter = 0;
+	while(ptr != '\0'){
+		ptr ++;
+		counter ++;
+	}
+	return counter;
+}
 void setLastPoint(void){
 lastPoint[0]=currentPoint[0];
 lastPoint[1]=currentPoint[1];
@@ -343,6 +352,7 @@ int main(void){
 		if(distance > 100){
 			GPIO_PORTF_DATA_R |= 0x08;
 		}
+		
 		delay(5000);
 		distance  = getDistance(point1, point2);
 		if(distance > 100){
