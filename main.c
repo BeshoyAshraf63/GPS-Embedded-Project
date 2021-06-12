@@ -95,6 +95,17 @@ void portB_segments_init(void){
 
 
 }
+void uart_Wifi_Init(){
+	SYSCTL_RCGCUART_R |= 0x04;            // activate UART2
+  SYSCTL_RCGCGPIO_R |= 0x08;            // activate port D
+  while((SYSCTL_PRGPIO_R&0x08) == 0){};
+	GPIO_PORTD_LOCK_R = GPIO_LOCK_KEY;
+	GPIO_PORTD_CR_R = 0xC0;
+  GPIO_PORTD_AFSEL_R |= 0xC0;           // enable alt funct on PD6-7
+  GPIO_PORTD_DEN_R |= 0xC0;             // enable digital I/O on PD6-7
+                                        // configure PD6-7 as UART
+  
+}
 double getDistance(double p1[],double p2[]){
    double lat1=p1[0];
    double lon1=p1[1];
