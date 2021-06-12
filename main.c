@@ -177,6 +177,26 @@ uint8_t validateData(char *str){
 		return 0;
 }
 
+uint8_t parseString(char * str, char parsedStr[15][20]){
+	uint8_t i = 0, j = 0;
+	while(*str != '\0'){
+		if(*str == ','){
+			parsedStr[i][j] = '\0';	
+			i++;
+			j = 0;
+		}else{
+			parsedStr[i][j] = *str;
+			j++;
+		}
+		str++;
+	}
+	if(strcmp(parsedStr[2], "A") != 0){
+		return 0;
+	}
+	return 1;
+}
+
+
 void uartGpsReadLine(char *enteredStr, uint32_t maxSize){
 		uint32_t length = 0;
 		while(uartGpsReadChar() != '$'){}
