@@ -203,6 +203,16 @@ lastPoint[1]=currentPoint[1];
  
 }
 
+__irq void UART2_Handler(){
+	char data = UART2_DR_R;
+	if(wifiDataPtr - wifiDataBuffer < 490){
+		*wifiDataPtr = data;
+	wifiDataPtr ++;
+	*wifiDataPtr = '\0';
+		
+	}
+}
+
 void WifiCommands(char dataToBeSent[85]){
 	if(currentWifiCommand == 0 || strstr(wifiDataBuffer, currentWifiCommandCheck) != NULL){
 		char postDataLengthStr[5], dataLengthStr[5], distanceStr[10];
