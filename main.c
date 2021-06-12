@@ -105,6 +105,16 @@ void uart_Wifi_Init(){
   GPIO_PORTD_DEN_R |= 0xC0;             // enable digital I/O on PD6-7
                                         // configure PD6-7 as UART
   
+		GPIO_PORTD_PCTL_R = (GPIO_PORTD_PCTL_R&0x00FFFFFF)+0x11000000;
+  GPIO_PORTD_AMSEL_R &= ~0xC0;          // disable analog functionality on PD
+  UART2_CTL_R &= ~(0x01);      					// disable UART
+  UART2_IBRD_R = 8;                   	// IBRD = int(16,000,000 / (16 * 9600)) = 104
+  UART2_FBRD_R = 44;                    // FBRD = int(0.1667 * 64 + 0.5) = 11
+  UART2_LCRH_R = 0x60;									// 8 bit word length (no parity bits, one stop bit, FIFOs)
+  UART2_CTL_R |= 0x301;                 // enable UART
+	UART2_ICR_R = 0x10;
+	UART2_IM_R |= 0x10;
+	NVIC_EN1_R |= 0x02;
 }
 double getDistance(double p1[],double p2[]){
    double lat1=p1[0];
