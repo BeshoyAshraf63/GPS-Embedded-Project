@@ -237,10 +237,10 @@ void uartWifiWriteChar(char data){
 	UART2_DR_R = data;
 
 }
-int8_t getLength(char str){
-	char ptr = str;
+int8_t getLength(char *str){
+	char *ptr = str;
 	uint32_t counter = 0;
-	while(ptr != '\0'){
+	while(*ptr != '\0'){
 		ptr ++;
 		counter ++;
 	}
