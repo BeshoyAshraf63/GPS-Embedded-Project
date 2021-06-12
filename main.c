@@ -8,7 +8,8 @@
 #define PI 3.14159265359
 #define R 6371000
 #define DISTINATION_OFFSET 10
-
+#define MAX_WIFI_TRIES 10
+#define THRESHOLD_SPEED 0
 
 uint8_t  numbersArr[10] = {0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f};
 double distance = 0;
@@ -17,7 +18,11 @@ uint8_t reachedDistination=0;
 double lastPoint[2]={0,0};
 double currentPoint[2]={0,0};
 double destinationPoint[2]={30.063921528763213,31.280019999858254};
-
+char wifiDataBuffer[500];
+char *wifiDataPtr = wifiDataBuffer;
+uint8_t currentWifiCommand = 0;
+char currentWifiCommandCheck[20];
+uint8_t wifiTries = 0;
 
 
 
@@ -143,9 +148,9 @@ __irq void SysTick_Handler(){
 	else currentNumber++;
 }
 void uart_Gps_Init(void){
-SYCTL_RCGCUART_R |= 0x08; //unlock UART3
-SYCTL_RCGPIO_R |= 0x04;   // ENABLE clock for C
-while(SYCTL_RCGPIO_R & 0x04 =0){}
+SYSCTL_RCGCUART_R |= 0x08; //unlock UART3
+SYSCTL_RCGCGPIO_R |= 0x04;   // ENABLE clock for C
+while((SYSCTL_PRGPIO_R & 0x04) == 0){}
 GPIO_PORTC_LOCK_R = 0x4C4F434B; // remove lock
 GPIO_PORTC_CR_R = 0xC0;
 UART3_IBRD_R=104;  // Baud Rate at 9600
@@ -153,9 +158,9 @@ UART3_FBRD_R=11;   // fraction of Baud rate
 UART3_LCRH_R=0x0070; // 1 stop bit and 8 bit length and also parity off
 UART3_CTL_R=0x0301;
 GPIO_PORTC_AFSEL_R |=0xC0;
-GPIO_PORTC_PCTL_R = (GPIO_PORTC_PCTL_R & 00FFFFFF ) + 0x11000000; // use last two pins as UART
+GPIO_PORTC_PCTL_R = (GPIO_PORTC_PCTL_R & 0x00FFFFFF ) + 0x11000000; // use last two pins as UART
 GPIO_PORTC_DEN_R |= 0xC0;
-GPIO_PORTC_AMSEL_R &~ 0xC0;
+GPIO_PORTC_AMSEL_R &= ~0xC0;
 }
 
 int validateData(char *x){
@@ -196,6 +201,73 @@ void setLastPoint(void){
 lastPoint[0]=currentPoint[0];
 lastPoint[1]=currentPoint[1];
  
+}
+
+void WifiCommands(char dataToBeSent[85]){
+	if(currentWifiCommand == 0 || strstr(wifiDataBuffer, currentWifiCommandCheck) != NULL){
+		char postDataLengthStr[5], dataLengthStr[5], distanceStr[10];
+		uint8_t dataLength, postDataLength;
+		uint32_t intDistance = (uint32_t) distance;
+		char postData[300] = "POST /postdata HTTP/1.1\r\nHost: gps-embedded-project.herokuapp.com\r\nAccept: */*\r\nContent-Length: ";
+		sprintf(distanceStr, "%d", intDistance);
+		dataLength = getLength(dataToBeSent) + getLength(distanceStr) + 15; //15 is due to additional chars data=&distance=
+		sprintf(dataLengthStr, "%d", dataLength);
+		strcat(postData, dataLengthStr);
+		strcat(postData, "\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata=");
+		strcat(postData, dataToBeSent);
+		strcat(postData, "&distance=");
+		strcat(postData, distanceStr);
+		postDataLength = getLength(postData);
+		sprintf(postDataLengthStr, "%d", postDataLength);
+		strcpy(wifiDataBuffer, "");
+		wifiTries = 0;
+		wifiDataPtr = wifiDataBuffer;
+		switch(currentWifiCommand){
+			case 0:
+				uartWifiWriteString("AT\r\n");
+				strcpy(currentWifiCommandCheck, "OK\r\n");
+				currentWifiCommand = 1;
+				break;
+			case 1:	
+				uartWifiWriteString("AT+CWMODE=1\r\n");
+				strcpy(currentWifiCommandCheck, "OK\r\n");
+				currentWifiCommand = 2;
+				break;
+			case 2:
+				uartWifiWriteString("AT+CWJAP=\"gps-project\",\"123456789\"\r\n");
+				strcpy(currentWifiCommandCheck, "OK\r\n");
+				currentWifiCommand = 3;
+				break;
+			case 3:
+				uartWifiWriteString("AT+CIPSTART=\"TCP\",\"gps-embedded-project.herokuapp.com\",80\r\n");
+				strcpy(currentWifiCommandCheck, "OK\r\n");
+				currentWifiCommand = 4;
+				break;
+			case 4:
+				uartWifiWriteString("AT+CIPSEND=");
+				uartWifiWriteString(postDataLengthStr);
+				uartWifiWriteString("\r\n");
+				currentWifiCommand = 5;
+				break;
+			case 5:
+				uartWifiWriteString(postData);
+				strcpy(currentWifiCommandCheck, "SEND OK\r\n");
+				currentWifiCommand = 6;
+				break;
+			case 6:
+				uartWifiWriteString("AT+CIPCLOSE\r\n");
+				strcpy(currentWifiCommandCheck, "CLOSED\r\n");
+				currentWifiCommand = 3;
+				break;
+		}
+	}else{
+		if(wifiTries <= MAX_WIFI_TRIES){
+				wifiTries ++;
+		}else{
+			currentWifiCommand = 0;
+			wifiTries = 0;
+		}
+	}
 }
 
 int main(void){
