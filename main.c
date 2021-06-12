@@ -343,6 +343,21 @@ void WifiCommands(char dataToBeSent[85]){
 		}
 	}
 }
+void getCoordinates(char parsedStr[15][20], double coordinates[2]){
+	double inputLat = atof(parsedStr[3]); //lat
+	double inputLon = atof(parsedStr[5]); //lon
+	double latDegrees = ((int)inputLat / 100) + (fmod(inputLat, 100) / 60);
+	double lonDegrees = ((int)inputLon / 100)  + (fmod(inputLon, 100) / 60);
+	if(strcmp(parsedStr[4], "S") == 0) coordinates[0] = -1 * latDegrees;
+	else coordinates[0] = latDegrees;
+	if(strcmp(parsedStr[6], "W") == 0) coordinates[1] = -1 * lonDegrees;
+	else coordinates[1] = lonDegrees;
+}
+
+
+
+
+
 
 int main(void){
 	initFunc();
