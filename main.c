@@ -163,19 +163,18 @@ GPIO_PORTC_DEN_R |= 0xC0;
 GPIO_PORTC_AMSEL_R &= ~0xC0;
 }
 
-int validateData(char *x){
-    char *y=strtok(x,",");
-    char n[]="GPRMC";
-    printf("%s\n",y);
-    int z= strcmp ( n , y);
-   if (z==0)
-    {
-     return 1;
-    }
-   if(z!=0)
-    {
-     return 0;
-    }
+uint8_t validateData(char *str){
+		char x[85];
+		char *y;
+		char n[] = "GPRMC";
+		int z;
+		strcpy(x, str);
+    y=strtok(x,",");
+    z= strcmp ( n , y);
+		if (z==0){
+			return 1;
+		}
+		return 0;
 }
 
 void uartGpsReadLine(char *enteredStr, uint32_t maxSize){
