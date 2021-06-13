@@ -60,13 +60,13 @@ void portF_led_init(){
 void portE_enables_init (void){
 	SYSCTL_RCGCGPIO_R |=0x10;
 		while (( SYSCTL_PRGPIO_R &0x10) == 0);
-	
+
 	GPIO_PORTE_LOCK_R=0x4c4f434b ;
 	GPIO_PORTE_CR_R |=0X1E ;
 	GPIO_PORTE_AFSEL_R &=~ 0X1E;
 	GPIO_PORTE_PCTL_R = 0;
 	GPIO_PORTE_AMSEL_R &=~0X1E;
-	
+
 	GPIO_PORTE_DEN_R |=0X1E;
 	GPIO_PORTE_DIR_R |=0X1E;
 	GPIO_PORTE_PUR_R |=0X00;
@@ -75,13 +75,13 @@ void portE_enables_init (void){
 void portB_segments_init(void){
   SYSCTL_RCGCGPIO_R |= 0x02;     //Enables port B
 	  while((SYSCTL_PRGPIO_R & 0x02) == 0){}  //waits until port is into clock
-			
+
 	GPIO_PORTB_LOCK_R = 0x4C4F434B;
 	GPIO_PORTB_CR_R|= 0x7F; // unlock first seven pins
 	GPIO_PORTB_AMSEL_R &= ~0x7F;
 	GPIO_PORTB_AFSEL_R&=~0x7F;
 	GPIO_PORTB_DEN_R|=0x7F;
-			
+
 	GPIO_PORTB_PCTL_R = 0x00000000; // used as GPIO so PCTL and AMSEL are reset
 	GPIO_PORTB_DIR_R|=0x7F;
 	GPIO_PORTB_PUR_R &=~0x7F;
@@ -91,16 +91,16 @@ void uart_Gps_Init(void){
   SYSCTL_RCGCUART_R |= 0x08; //unlock UART3
 	SYSCTL_RCGCGPIO_R |= 0x04;   // ENABLE clock for C
 		while((SYSCTL_PRGPIO_R & 0x04) == 0){}
-			
+
 	GPIO_PORTC_LOCK_R = 0x4C4F434B; // remove lock
 	GPIO_PORTC_CR_R = 0xC0;
-			
-	UART3_CTL_R&=~(0x01);	
+
+	UART3_CTL_R&=~(0x01);
 	UART3_IBRD_R=104;  // Baud Rate at 9600
 	UART3_FBRD_R=11;   // fraction of Baud rate
 	UART3_LCRH_R=0x0070; // 1 stop bit and 8 bit length and also parity off
 	UART3_CTL_R=0x0301;
-			
+
 	GPIO_PORTC_AFSEL_R |=0xC0;
 	GPIO_PORTC_PCTL_R = (GPIO_PORTC_PCTL_R & 0x00FFFFFF ) + 0x11000000; // use last two pins as UART
 	GPIO_PORTC_DEN_R |= 0xC0;
@@ -118,7 +118,7 @@ void uart_Wifi_Init(){
                                         // configure PD6-7 as UART
 	GPIO_PORTD_PCTL_R = (GPIO_PORTD_PCTL_R&0x00FFFFFF)+0x11000000;
   GPIO_PORTD_AMSEL_R &= ~0xC0;          // disable analog functionality on PD
-		 
+
   UART2_CTL_R &= ~(0x01);      					// disable UART
   UART2_IBRD_R = 8;                   	// IBRD = int(16,000,000 / (16 * 9600)) = 104
   UART2_FBRD_R = 44;                    // FBRD = int(0.1667 * 64 + 0.5) = 11
@@ -137,14 +137,14 @@ char uartGpsReadChar(void){
 void uartGpsReadLine(char *enteredStr, uint32_t maxSize){
 	uint32_t length = 0;
 	while(uartGpsReadChar() != '$'){}
-		
+
 	while(length < maxSize){
 			*enteredStr = uartGpsReadChar();
 			if(*enteredStr  == '*') 	break;
 			enteredStr ++;
 			length++;
 		  }
-	
+
 	enteredStr ++;
 	*enteredStr = '\0';
  }
@@ -154,14 +154,14 @@ void uartWifiWriteChar(char data){
 	UART2_DR_R = data;
   }
 
-void uartWifiWriteString(char * data){   
+void uartWifiWriteString(char * data){
 	int n = strlen(data);
 	while(n>0){
 		uartWifiWriteChar(data[strlen(data)-n]);
 		n=n-1;
 	  }
   }
- 
+
 double getDistance(double p1[],double p2[]){
    double lat1=p1[0];
    double lon1=p1[1];
@@ -199,7 +199,7 @@ __irq void SysTick_Handler(){
 		else{
 			number = intDistance / 1000;
 		  }
-		
+
 	  GPIO_PORTB_DATA_R = numbersArr[number];
 	  GPIO_PORTE_DATA_R = (1 << (currentNumber + 1));
 	 }
@@ -216,15 +216,15 @@ void getCoordinates(char parsedStr[15][20], double coordinates[2]){
 	double inputLon = atof(parsedStr[5]); //lon
 	double latDegrees = ((int)inputLat / 100) + (fmod(inputLat, 100) / 60);
 	double lonDegrees = ((int)inputLon / 100)  + (fmod(inputLon, 100) / 60);
-	
-	if(strcmp(parsedStr[4], "S") == 0) 
+
+	if(strcmp(parsedStr[4], "S") == 0)
 		coordinates[0] = -1 * latDegrees;
-	else 
+	else
 		coordinates[0] = latDegrees;
-	
-	if(strcmp(parsedStr[6], "W") == 0) 
+
+	if(strcmp(parsedStr[6], "W") == 0)
 		coordinates[1] = -1 * lonDegrees;
-	else 
+	else
 		coordinates[1] = lonDegrees;
   }
 
@@ -242,11 +242,11 @@ uint8_t parseString(char * str, char parsedStr[15][20]){
 		    }
 	str++;
 	}
-	
+
 	if(strcmp(parsedStr[2], "A") != 0){
 		return 0;
 	  }
-	
+
 	return 1;
   }
 
@@ -268,7 +268,7 @@ void setLastPoint(void){
   lastPoint[0]=currentPoint[0];
   lastPoint[1]=currentPoint[1];
   }
- 
+
 void initFunc(void){
 
 	systick_init();
@@ -409,7 +409,7 @@ int main(void){
 			while(1){
 				WifiCommands("reached distination");
 				delay(1000);
-			  }  
+			  }
 		  }
 		}
   }
