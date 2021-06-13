@@ -220,11 +220,18 @@ void getCoordinates(char parsedStr[15][20], double coordinates[2]){
 	double inputLon = atof(parsedStr[5]); //lon
 	double latDegrees = ((int)inputLat / 100) + (fmod(inputLat, 100) / 60);
 	double lonDegrees = ((int)inputLon / 100)  + (fmod(inputLon, 100) / 60);
-	if(strcmp(parsedStr[4], "S") == 0) coordinates[0] = -1 * latDegrees;
-	else coordinates[0] = latDegrees;
-	if(strcmp(parsedStr[6], "W") == 0) coordinates[1] = -1 * lonDegrees;
-	else coordinates[1] = lonDegrees;
-}
+	
+	if(strcmp(parsedStr[4], "S") == 0) 
+		coordinates[0] = -1 * latDegrees;
+	else 
+		coordinates[0] = latDegrees;
+	
+	if(strcmp(parsedStr[6], "W") == 0) 
+		coordinates[1] = -1 * lonDegrees;
+	else 
+		coordinates[1] = lonDegrees;
+  }
+
 uint8_t parseString(char * str, char parsedStr[15][20]){
 	uint8_t i = 0, j = 0;
 	while(*str != '\0'){
@@ -232,17 +239,21 @@ uint8_t parseString(char * str, char parsedStr[15][20]){
 			parsedStr[i][j] = '\0';
 			i++;
 			j = 0;
-		}else{
+		  }
+		else{
 			parsedStr[i][j] = *str;
 			j++;
-		}
-		str++;
+		    }
+	str++;
 	}
+	
 	if(strcmp(parsedStr[2], "A") != 0){
 		return 0;
-	}
+	  }
+	
 	return 1;
-}
+  }
+
 uint8_t validateData(char *str){
 		char x[85];
 		char *y;
@@ -253,37 +264,34 @@ uint8_t validateData(char *str){
     z= strcmp ( n , y);
 		if (z==0){
 			return 1;
-		}
+		  }
 		return 0;
-}
+    }
 
 void setLastPoint(void){
-lastPoint[0]=currentPoint[0];
-lastPoint[1]=currentPoint[1];
-
-}
+  lastPoint[0]=currentPoint[0];
+  lastPoint[1]=currentPoint[1];
+  }
  
 void initFunc(void){
 
- systick_init();
- portE_enables_init();
- portB_segments_init();
- portF_led_init();
-uart_GpsInit();
-uart_Wifi_Init();
-GPIO_PORTF_DATA_R|= 0x02;
+	systick_init();
+	portE_enables_init();
+	portB_segments_init();
+	portF_led_init();
+	uart_GpsInit();
+	uart_Wifi_Init();
+	GPIO_PORTF_DATA_R|= 0x02;
+  }
 
-
-}
 __irq void UART2_Handler(){
 	char data = UART2_DR_R;
 	if(wifiDataPtr - wifiDataBuffer < 490){
 		*wifiDataPtr = data;
-	wifiDataPtr ++;
-	*wifiDataPtr = '\0';
-
-	}
-}
+	  wifiDataPtr ++;
+	  *wifiDataPtr = '\0';
+	  }
+  }
 
 void WifiCommands(char dataToBeSent[85]){
 	if(currentWifiCommand == 0 || strstr(wifiDataBuffer, currentWifiCommandCheck) != NULL){
@@ -342,27 +350,23 @@ void WifiCommands(char dataToBeSent[85]){
 				currentWifiCommand = 3;
 				break;
 		}
-	}else{
-		if(wifiTries <= MAX_WIFI_TRIES){
+	}
+	else{
+	 if(wifiTries <= MAX_WIFI_TRIES){
 				wifiTries ++;
-		}else{
+		}
+		else{
 			currentWifiCommand = 0;
 			wifiTries = 0;
 		}
-	}
-}
-
-
-
-
-
-
+	 }
+ }
 
 int main(void){
-	uint8_t firstReading = 1;
-	uint8_t secondReading = 0;
-	initFunc();
-	__enable_irq();
+	 uint8_t firstReading = 1;
+	 uint8_t secondReading = 0;
+	 initFunc();
+	 __enable_irq();
 	delay(1000);
 	WifiCommands("connecting");
 	while(1){
@@ -374,41 +378,42 @@ int main(void){
 			while(validData == 0){
 				uartGpsReadLine(receivedStr, 85);
 				if(validateData(receivedStr) == 1) validData = 1;
-			}
+			  }
 			if(parseString(receivedStr, parsedStr) == 0) {
 				GPIO_PORTF_DATA_R ^= 0x02;
 				WifiCommands("connecting");
 				firstReading = 1;
 				continue;
-			}
+			  }
 			if(firstReading) {
 				delay(3000);
 				firstReading = 0;
 				secondReading = 1;
 				continue;
-			}
+			  }
 			getCoordinates(parsedStr, currentPoint);
 			if(secondReading) {
 				secondReading = 0;
 				setLastPoint();
 				GPIO_PORTF_DATA_R &= ~(0x02);
-			}
+			  }
 			speed = atof(parsedStr[7]);
 			if(speed >= THRESHOLD_SPEED){
 				distance  += getDistance(currentPoint, lastPoint);
-			}
+			  }
 			setLastPoint();
 			if(getDistance(currentPoint, destinationPoint) <= DISTINATION_OFFSET) reachedDistination = 1;
 
 			WifiCommands(receivedStr);
 			delay(500);
 			WifiCommands(receivedStr);
-		}else{
+		}
+		else{
 			GPIO_PORTF_DATA_R |= 0x08;
 			while(1){
 				WifiCommands("reached distination");
 				delay(1000);
-			}
+			  }  
+		  }
 		}
-	}
-}
+  }
