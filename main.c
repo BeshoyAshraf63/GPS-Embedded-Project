@@ -34,95 +34,95 @@ void SystemInit(void){
 
 void delay(uint32_t times){
 	int i ;
-		for( i = 0; i < times/5 ; i++)
+	for( i = 0; i < times/5 ; i++)
 		{while((NVIC_ST_CTRL_R & 0x10000) == 0){}
 		}
 	}
+
 void systick_init(){
 		NVIC_ST_CTRL_R = 0;									//disable timer
 		NVIC_ST_RELOAD_R = (16000*5 - 1);		//time, every (16000-1) = 1 millisec
 		NVIC_ST_CURRENT_R = 0;							//clear current r, clear count flag
 		NVIC_ST_CTRL_R |= 0x07;							//enable timer and set clck src and start inturrept
 }
+
 void portF_led_init()
 {
-  		SYSCTL_RCGCGPIO_R |= 0x20;   /* enable clock to GPIOF */
-      while((SYSCTL_PRGPIO_R & 0x20)==0);
+	SYSCTL_RCGCGPIO_R |= 0x20;   /* enable clock to GPIOF */
+    while((SYSCTL_PRGPIO_R & 0x20)==0);
 
-      GPIO_PORTF_LOCK_R = 0x4C4F434B; // unlock
-  		GPIO_PORTF_CR_R = 0x0F;
-  		GPIO_PORTF_AFSEL_R &=~(0x0E); // disable alternative functions
-  		GPIO_PORTF_PCTL_R = 0;
-  		GPIO_PORTF_DIR_R = 0x0E;        // set pins 1,2,3 as output
+  GPIO_PORTF_LOCK_R = 0x4C4F434B; // unlock
+  GPIO_PORTF_CR_R = 0x0F;
+  GPIO_PORTF_AFSEL_R &=~(0x0E); // disable alternative functions
+  GPIO_PORTF_PCTL_R = 0;
+  GPIO_PORTF_DIR_R = 0x0E;        // set pins 1,2,3 as output
 
-  		GPIO_PORTF_AMSEL_R &= ~(0x0E);
-  		GPIO_PORTF_DEN_R = 0x0E;         /* set PORTF pins 1 to 4 as digital pins */
-
-
-
-}
-
+  GPIO_PORTF_AMSEL_R &= ~(0x0E);
+  GPIO_PORTF_DEN_R = 0x0E;         /* set PORTF pins 1 to 4 as digital pins */
+	 }
 
 void portE_enables_init (void){
 	SYSCTL_RCGCGPIO_R |=0x10;
 		while (( SYSCTL_PRGPIO_R &0x10) == 0);
-		GPIO_PORTE_LOCK_R=0x4c4f434b ;
-		GPIO_PORTE_CR_R |=0X1E ;
-		GPIO_PORTE_AFSEL_R &=~ 0X1E;
-		GPIO_PORTE_PCTL_R = 0;
-		GPIO_PORTE_AMSEL_R &=~0X1E;
-		GPIO_PORTE_DEN_R |=0X1E;
-		GPIO_PORTE_DIR_R |=0X1E;
-		GPIO_PORTE_PUR_R |=0X00;
-
+	
+	GPIO_PORTE_LOCK_R=0x4c4f434b ;
+	GPIO_PORTE_CR_R |=0X1E ;
+	GPIO_PORTE_AFSEL_R &=~ 0X1E;
+	GPIO_PORTE_PCTL_R = 0;
+	GPIO_PORTE_AMSEL_R &=~0X1E;
+	
+	GPIO_PORTE_DEN_R |=0X1E;
+	GPIO_PORTE_DIR_R |=0X1E;
+	GPIO_PORTE_PUR_R |=0X00;
 	}
+
 void portB_segments_init(void){
+  SYSCTL_RCGCGPIO_R |= 0x02;     //Enables port B
+	  while((SYSCTL_PRGPIO_R & 0x02) == 0){}  //waits until port is into clock
+			
+	GPIO_PORTB_LOCK_R = 0x4C4F434B;
+	GPIO_PORTB_CR_R|= 0x7F; // unlock first seven pins
+	GPIO_PORTB_AMSEL_R &= ~0x7F;
+	GPIO_PORTB_AFSEL_R&=~0x7F;
+	GPIO_PORTB_DEN_R|=0x7F;
+			
+	GPIO_PORTB_PCTL_R = 0x00000000; // used as GPIO so PCTL and AMSEL are reset
+	GPIO_PORTB_DIR_R|=0x7F;
+	GPIO_PORTB_PUR_R &=~0x7F;
+  }
 
-			SYSCTL_RCGCGPIO_R |= 0x02;     //Enables port B
-			while((SYSCTL_PRGPIO_R & 0x02) == 0){}  //waits until port is into clock
-			GPIO_PORTB_LOCK_R = 0x4C4F434B;
-			GPIO_PORTB_CR_R|= 0x7F; // unlock first seven pins
-			GPIO_PORTB_AMSEL_R &= ~0x7F;
-			GPIO_PORTB_AFSEL_R&=~0x7F;
-			GPIO_PORTB_DEN_R|=0x7F;
-			GPIO_PORTB_PCTL_R = 0x00000000; // used as GPIO so PCTL and AMSEL are reset
-			GPIO_PORTB_DIR_R|=0x7F;
-			GPIO_PORTB_PUR_R &=~0x7F;
-
-
-
-
-
-
-}
 void uart_Gps_Init(void){
-SYSCTL_RCGCUART_R |= 0x08; //unlock UART3
-SYSCTL_RCGCGPIO_R |= 0x04;   // ENABLE clock for C
-while((SYSCTL_PRGPIO_R & 0x04) == 0){}
-GPIO_PORTC_LOCK_R = 0x4C4F434B; // remove lock
-GPIO_PORTC_CR_R = 0xC0;
-UART3_CTL_R&=~(0x01);	
-UART3_IBRD_R=104;  // Baud Rate at 9600
-UART3_FBRD_R=11;   // fraction of Baud rate
-UART3_LCRH_R=0x0070; // 1 stop bit and 8 bit length and also parity off
-UART3_CTL_R=0x0301;
-GPIO_PORTC_AFSEL_R |=0xC0;
-GPIO_PORTC_PCTL_R = (GPIO_PORTC_PCTL_R & 0x00FFFFFF ) + 0x11000000; // use last two pins as UART
-GPIO_PORTC_DEN_R |= 0xC0;
-GPIO_PORTC_AMSEL_R &= ~0xC0;
-}
+  SYSCTL_RCGCUART_R |= 0x08; //unlock UART3
+	SYSCTL_RCGCGPIO_R |= 0x04;   // ENABLE clock for C
+		while((SYSCTL_PRGPIO_R & 0x04) == 0){}
+			
+	GPIO_PORTC_LOCK_R = 0x4C4F434B; // remove lock
+	GPIO_PORTC_CR_R = 0xC0;
+			
+	UART3_CTL_R&=~(0x01);	
+	UART3_IBRD_R=104;  // Baud Rate at 9600
+	UART3_FBRD_R=11;   // fraction of Baud rate
+	UART3_LCRH_R=0x0070; // 1 stop bit and 8 bit length and also parity off
+	UART3_CTL_R=0x0301;
+			
+	GPIO_PORTC_AFSEL_R |=0xC0;
+	GPIO_PORTC_PCTL_R = (GPIO_PORTC_PCTL_R & 0x00FFFFFF ) + 0x11000000; // use last two pins as UART
+	GPIO_PORTC_DEN_R |= 0xC0;
+	GPIO_PORTC_AMSEL_R &= ~0xC0;
+	}
+
 void uart_Wifi_Init(){
 	SYSCTL_RCGCUART_R |= 0x04;            // activate UART2
   SYSCTL_RCGCGPIO_R |= 0x08;            // activate port D
-  while((SYSCTL_PRGPIO_R&0x08) == 0){};
+   while((SYSCTL_PRGPIO_R&0x08) == 0){};
 	GPIO_PORTD_LOCK_R = GPIO_LOCK_KEY;
 	GPIO_PORTD_CR_R = 0xC0;
   GPIO_PORTD_AFSEL_R |= 0xC0;           // enable alt funct on PD6-7
   GPIO_PORTD_DEN_R |= 0xC0;             // enable digital I/O on PD6-7
                                         // configure PD6-7 as UART
-
-		GPIO_PORTD_PCTL_R = (GPIO_PORTD_PCTL_R&0x00FFFFFF)+0x11000000;
+	GPIO_PORTD_PCTL_R = (GPIO_PORTD_PCTL_R&0x00FFFFFF)+0x11000000;
   GPIO_PORTD_AMSEL_R &= ~0xC0;          // disable analog functionality on PD
+		 
   UART2_CTL_R &= ~(0x01);      					// disable UART
   UART2_IBRD_R = 8;                   	// IBRD = int(16,000,000 / (16 * 9600)) = 104
   UART2_FBRD_R = 44;                    // FBRD = int(0.1667 * 64 + 0.5) = 11
@@ -131,39 +131,40 @@ void uart_Wifi_Init(){
 	UART2_ICR_R = 0x10;
 	UART2_IM_R |= 0x10;
 	NVIC_EN1_R |= 0x02;
-}
+  }
+
 char uartGpsReadChar(void){
-while((UART3_FR_R & 0x010)!=0){}
+	while((UART3_FR_R & 0x010)!=0){}
+	return(char)(UART3_DR_R &0xff);
+  }
 
-return(char)(UART3_DR_R &0xff);
-}
 void uartGpsReadLine(char *enteredStr, uint32_t maxSize){
-		uint32_t length = 0;
-		while(uartGpsReadChar() != '$'){}
-		while(length < maxSize){
+	uint32_t length = 0;
+	while(uartGpsReadChar() != '$'){}
+		
+	while(length < maxSize){
 			*enteredStr = uartGpsReadChar();
-
 			if(*enteredStr  == '*') 	break;
 			enteredStr ++;
 			length++;
-		}
-		enteredStr ++;
-		*enteredStr = '\0';
-}
+		  }
+	
+	enteredStr ++;
+	*enteredStr = '\0';
+ }
+
 void uartWifiWriteChar(char data){
- while((UART2_FR_R & 0x0020) != 0);
+	while((UART2_FR_R & 0x0020) != 0);
 	UART2_DR_R = data;
-
-}
-
+  }
 
 void uartWifiWriteString(char * data){   
 	int n = strlen(data);
 	while(n>0){
 		uartWifiWriteChar(data[strlen(data)-n]);
 		n=n-1;
-	}
-}
+	  }
+  }
  
 double getDistance(double p1[],double p2[]){
    double lat1=p1[0];
@@ -180,8 +181,9 @@ double getDistance(double p1[],double p2[]){
    double c=2*atan2(sqrt(a),sqrt((1-a)));
    double d=(R*c);
 
-     return d;
-}
+   return d;
+   }
+
 __irq void SysTick_Handler(){
 	uint32_t number = 0;
 	uint32_t intDistance = (uint32_t)distance;
@@ -189,24 +191,30 @@ __irq void SysTick_Handler(){
 	if(intDistance < 10000){
 		if(currentNumber == 0){
 			number = intDistance % 10;
-		}else if(currentNumber == 1){
+		  }
+		else if(currentNumber == 1){
 			number = intDistance % 100;
 			number /= 10;
-		}else if(currentNumber == 2){
+		  }
+		else if(currentNumber == 2){
 			number = intDistance % 1000;
 			number /= 100;
-		}else{
+		  }
+		else{
 			number = intDistance / 1000;
-		}
-		GPIO_PORTB_DATA_R = numbersArr[number];
-		GPIO_PORTE_DATA_R = (1 << (currentNumber + 1));
-	}else{
+		  }
+		
+	  GPIO_PORTB_DATA_R = numbersArr[number];
+	  GPIO_PORTE_DATA_R = (1 << (currentNumber + 1));
+	 }
+  else{
 		GPIO_PORTB_DATA_R = numbersArr[1];
 		GPIO_PORTE_DATA_R = (1 << 4);
-	}
+	  }
 	if(currentNumber == 3) currentNumber = 0;
 	else currentNumber++;
-}
+  }
+
 void getCoordinates(char parsedStr[15][20], double coordinates[2]){
 	double inputLat = atof(parsedStr[3]); //lat
 	double inputLon = atof(parsedStr[5]); //lon
