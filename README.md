@@ -3,10 +3,10 @@
 This project is not just an embedded systems project. It’s an IOT device (Internet Of Things). A GPS tracker system that measures the distance moved very accurately and can give an indication when reaching the destination point. Not only that, but it also send the data fetched from the GPS module to a live web server through esp8266 Wi-Fi module and POST requests and can be tracked through a website that communicate with the same server from anywhere on the Earth in real time.
 
 ## Features
+- Calculating the distance between any two points on Earth using haversine formula 
+- displaying the distance on the 7-segment dynamically without needing to call any functions due to using interrupts 
 
-- Calculating the distance between any two points on Earth using haversine formula
-- displaying the distance on the 7-segment dynamically without needing to call any functions due to using interrupts
-- Delay function using Systick timer which is very accurate
+
 
 ## Milestone 2 Video Link - the video is in the google drive link
 
