@@ -95,6 +95,22 @@ void portB_segments_init(void){
 
 
 }
+void uart_Gps_Init(void){
+SYSCTL_RCGCUART_R |= 0x08; //unlock UART3
+SYSCTL_RCGCGPIO_R |= 0x04;   // ENABLE clock for C
+while((SYSCTL_PRGPIO_R & 0x04) == 0){}
+GPIO_PORTC_LOCK_R = 0x4C4F434B; // remove lock
+GPIO_PORTC_CR_R = 0xC0;
+UART3_CTL_R&=~(0x01);	
+UART3_IBRD_R=104;  // Baud Rate at 9600
+UART3_FBRD_R=11;   // fraction of Baud rate
+UART3_LCRH_R=0x0070; // 1 stop bit and 8 bit length and also parity off
+UART3_CTL_R=0x0301;
+GPIO_PORTC_AFSEL_R |=0xC0;
+GPIO_PORTC_PCTL_R = (GPIO_PORTC_PCTL_R & 0x00FFFFFF ) + 0x11000000; // use last two pins as UART
+GPIO_PORTC_DEN_R |= 0xC0;
+GPIO_PORTC_AMSEL_R &= ~0xC0;
+}
 void uart_Wifi_Init(){
 	SYSCTL_RCGCUART_R |= 0x04;            // activate UART2
   SYSCTL_RCGCGPIO_R |= 0x08;            // activate port D
@@ -116,6 +132,39 @@ void uart_Wifi_Init(){
 	UART2_IM_R |= 0x10;
 	NVIC_EN1_R |= 0x02;
 }
+char uartGpsReadChar(void){
+while((UART3_FR_R & 0x010)!=0){}
+
+return(char)(UART3_DR_R &0xff);
+}
+void uartGpsReadLine(char *enteredStr, uint32_t maxSize){
+		uint32_t length = 0;
+		while(uartGpsReadChar() != '$'){}
+		while(length < maxSize){
+			*enteredStr = uartGpsReadChar();
+
+			if(*enteredStr  == '*') 	break;
+			enteredStr ++;
+			length++;
+		}
+		enteredStr ++;
+		*enteredStr = '\0';
+}
+void uartWifiWriteChar(char data){
+ while((UART2_FR_R & 0x0020) != 0);
+	UART2_DR_R = data;
+
+}
+
+
+void uartWifiWriteString(char * data){   
+	int n = strlen(data);
+	while(n>0){
+		uartWifiWriteChar(data[strlen(data)-n]);
+		n=n-1;
+	}
+}
+ 
 double getDistance(double p1[],double p2[]){
    double lat1=p1[0];
    double lon1=p1[1];
@@ -133,19 +182,6 @@ double getDistance(double p1[],double p2[]){
 
      return d;
 }
-void initFunc(void){
-
- systick_init();
- portE_enables_init();
- portB_segments_init();
- portF_led_init();
-uart_GpsInit();
-uart_Wifi_Init();
-GPIO_PORTF_DATA_R|= 0x02;
-
-
-}
-
 __irq void SysTick_Handler(){
 	uint32_t number = 0;
 	uint32_t intDistance = (uint32_t)distance;
@@ -171,37 +207,16 @@ __irq void SysTick_Handler(){
 	if(currentNumber == 3) currentNumber = 0;
 	else currentNumber++;
 }
-void uart_Gps_Init(void){
-SYSCTL_RCGCUART_R |= 0x08; //unlock UART3
-SYSCTL_RCGCGPIO_R |= 0x04;   // ENABLE clock for C
-while((SYSCTL_PRGPIO_R & 0x04) == 0){}
-GPIO_PORTC_LOCK_R = 0x4C4F434B; // remove lock
-GPIO_PORTC_CR_R = 0xC0;
-UART3_CTL_R&=~(0x01);	
-UART3_IBRD_R=104;  // Baud Rate at 9600
-UART3_FBRD_R=11;   // fraction of Baud rate
-UART3_LCRH_R=0x0070; // 1 stop bit and 8 bit length and also parity off
-UART3_CTL_R=0x0301;
-GPIO_PORTC_AFSEL_R |=0xC0;
-GPIO_PORTC_PCTL_R = (GPIO_PORTC_PCTL_R & 0x00FFFFFF ) + 0x11000000; // use last two pins as UART
-GPIO_PORTC_DEN_R |= 0xC0;
-GPIO_PORTC_AMSEL_R &= ~0xC0;
+void getCoordinates(char parsedStr[15][20], double coordinates[2]){
+	double inputLat = atof(parsedStr[3]); //lat
+	double inputLon = atof(parsedStr[5]); //lon
+	double latDegrees = ((int)inputLat / 100) + (fmod(inputLat, 100) / 60);
+	double lonDegrees = ((int)inputLon / 100)  + (fmod(inputLon, 100) / 60);
+	if(strcmp(parsedStr[4], "S") == 0) coordinates[0] = -1 * latDegrees;
+	else coordinates[0] = latDegrees;
+	if(strcmp(parsedStr[6], "W") == 0) coordinates[1] = -1 * lonDegrees;
+	else coordinates[1] = lonDegrees;
 }
-
-uint8_t validateData(char *str){
-		char x[85];
-		char *y;
-		char n[] = "GPRMC";
-		int z;
-		strcpy(x, str);
-    y=strtok(x,",");
-    z= strcmp ( n , y);
-		if (z==0){
-			return 1;
-		}
-		return 0;
-}
-
 uint8_t parseString(char * str, char parsedStr[15][20]){
 	uint8_t i = 0, j = 0;
 	while(*str != '\0'){
@@ -220,26 +235,18 @@ uint8_t parseString(char * str, char parsedStr[15][20]){
 	}
 	return 1;
 }
-
-
-void uartGpsReadLine(char *enteredStr, uint32_t maxSize){
-		uint32_t length = 0;
-		while(uartGpsReadChar() != '$'){}
-		while(length < maxSize){
-			*enteredStr = uartGpsReadChar();
-
-			if(*enteredStr  == '*') 	break;
-			enteredStr ++;
-			length++;
+uint8_t validateData(char *str){
+		char x[85];
+		char *y;
+		char n[] = "GPRMC";
+		int z;
+		strcpy(x, str);
+    y=strtok(x,",");
+    z= strcmp ( n , y);
+		if (z==0){
+			return 1;
 		}
-		enteredStr ++;
-		*enteredStr = '\0';
-}
-
-void uartWifiWriteChar(char data){
- while((UART2_FR_R & 0x0020) != 0);
-	UART2_DR_R = data;
-
+		return 0;
 }
 
 void setLastPoint(void){
@@ -247,22 +254,19 @@ lastPoint[0]=currentPoint[0];
 lastPoint[1]=currentPoint[1];
 
 }
- char uartGpsReadChar(void){
-while((UART3_FR_R & 0x010)!=0){}
-
-return(char)(UART3_DR_R &0xff);
-}
  
-void uartWifiWriteString(char * data){   
-	int n = strlen(data);
-	while(n>0){
-		uartWifiWriteChar(data[strlen(data)-n]);
-		n=n-1;
-	}
+void initFunc(void){
+
+ systick_init();
+ portE_enables_init();
+ portB_segments_init();
+ portF_led_init();
+uart_GpsInit();
+uart_Wifi_Init();
+GPIO_PORTF_DATA_R|= 0x02;
+
+
 }
-
-
-
 __irq void UART2_Handler(){
 	char data = UART2_DR_R;
 	if(wifiDataPtr - wifiDataBuffer < 490){
@@ -339,16 +343,7 @@ void WifiCommands(char dataToBeSent[85]){
 		}
 	}
 }
-void getCoordinates(char parsedStr[15][20], double coordinates[2]){
-	double inputLat = atof(parsedStr[3]); //lat
-	double inputLon = atof(parsedStr[5]); //lon
-	double latDegrees = ((int)inputLat / 100) + (fmod(inputLat, 100) / 60);
-	double lonDegrees = ((int)inputLon / 100)  + (fmod(inputLon, 100) / 60);
-	if(strcmp(parsedStr[4], "S") == 0) coordinates[0] = -1 * latDegrees;
-	else coordinates[0] = latDegrees;
-	if(strcmp(parsedStr[6], "W") == 0) coordinates[1] = -1 * lonDegrees;
-	else coordinates[1] = lonDegrees;
-}
+
 
 
 
