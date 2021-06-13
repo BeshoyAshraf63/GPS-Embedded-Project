@@ -260,9 +260,12 @@ while((UART3_FR_R & 0x010)!=0){}
 
 return UART3_DR_R;
 }
-void uartWifiWriteString(char * data ){
-for(int n=0; n<strlen(data); n++){
-uartWifiWriteChar(data[n]);
+void uartWifiWriteString(char * data){   
+	int n = strlen(data);
+	while(n>0){
+		uartWifiWriteChar(data[strlen(data)-n]);
+		n=n-1;
+	}
 }
 
 }
