@@ -240,15 +240,7 @@ void uartWifiWriteChar(char data){
 	UART2_DR_R = data;
 
 }
-int8_t getLength(char *str){
-	char *ptr = str;
-	uint32_t counter = 0;
-	while(*ptr != '\0'){
-		ptr ++;
-		counter ++;
-	}
-	return counter;
-}
+
 void setLastPoint(void){
 lastPoint[0]=currentPoint[0];
 lastPoint[1]=currentPoint[1];
@@ -268,7 +260,7 @@ void uartWifiWriteString(char * data){
 	}
 }
 
-}
+
 
 __irq void UART2_Handler(){
 	char data = UART2_DR_R;
@@ -287,14 +279,14 @@ void WifiCommands(char dataToBeSent[85]){
 		uint32_t intDistance = (uint32_t) distance;
 		char postData[300] = "POST /postdata HTTP/1.1\r\nHost: gps-embedded-project.herokuapp.com\r\nAccept: */*\r\nContent-Length: ";
 		sprintf(distanceStr, "%d", intDistance);
-		dataLength = getLength(dataToBeSent) + getLength(distanceStr) + 15; //15 is due to additional chars data=&distance=
+		dataLength = strlen(dataToBeSent) + strlen(distanceStr) + 15; //15 is due to additional chars data=&distance=
 		sprintf(dataLengthStr, "%d", dataLength);
 		strcat(postData, dataLengthStr);
 		strcat(postData, "\r\nContent-Type: application/x-www-form-urlencoded\r\n\r\ndata=");
 		strcat(postData, dataToBeSent);
 		strcat(postData, "&distance=");
 		strcat(postData, distanceStr);
-		postDataLength = getLength(postData);
+		postDataLength = strlen(postData);
 		sprintf(postDataLengthStr, "%d", postDataLength);
 		strcpy(wifiDataBuffer, "");
 		wifiTries = 0;
