@@ -25,12 +25,9 @@ char currentWifiCommandCheck[20];
 uint8_t wifiTries = 0;
 
 
-
-
-
 void SystemInit(void){
 	NVIC_CPAC_R |= 0x00F00000;		//enable FPU - Floating-point numbers
-}
+  }
 
 void delay(uint32_t times){
 	int i ;
@@ -44,10 +41,9 @@ void systick_init(){
 		NVIC_ST_RELOAD_R = (16000*5 - 1);		//time, every (16000-1) = 1 millisec
 		NVIC_ST_CURRENT_R = 0;							//clear current r, clear count flag
 		NVIC_ST_CTRL_R |= 0x07;							//enable timer and set clck src and start inturrept
-}
+    }
 
-void portF_led_init()
-{
+void portF_led_init(){
 	SYSCTL_RCGCGPIO_R |= 0x20;   /* enable clock to GPIOF */
     while((SYSCTL_PRGPIO_R & 0x20)==0);
 
@@ -59,7 +55,7 @@ void portF_led_init()
 
   GPIO_PORTF_AMSEL_R &= ~(0x0E);
   GPIO_PORTF_DEN_R = 0x0E;         /* set PORTF pins 1 to 4 as digital pins */
-	 }
+	}
 
 void portE_enables_init (void){
 	SYSCTL_RCGCGPIO_R |=0x10;
