@@ -12,6 +12,22 @@ This project is not just an embedded systems project. It’s an IOT device (Inte
 
 -[https://drive.google.com/drive/folders/16MSDlXN5nF6K6GrqkvRkKz80mx3kMstn?usp=sharing](https://drive.google.com/drive/folders/16MSDlXN5nF6K6GrqkvRkKz80mx3kMstn?usp=sharing)
 
+## Website link
+
+-[https://gps-embedded-project.herokuapp.com/](https://gps-embedded-project.herokuapp.com/)
+
+## Website Github repo
+
+-[https://github.com/kirollosashrafsedky/GPS-Project-website](https://github.com/kirollosashrafsedky/GPS-Project-website)
+
+## Google maps distance test
+
+![distance = 220 m](https://drive.google.com/uc?export=view&id=16MSDlXN5nF6K6GrqkvRkKz80mx3kMstn)
+
+## Circuit Schematic
+
+![schematic](https://drive.google.com/uc?export=view&id=16MSDlXN5nF6K6GrqkvRkKz80mx3kMstn)
+
 ## Team members and IDs
 
 كيرلس اشرف صدقي داود => 1807624
