@@ -47,7 +47,7 @@ void systick_init(){
 void portF_led_init()
 {
   		SYSCTL_RCGCGPIO_R |= 0x20;   /* enable clock to GPIOF */
-      while((SYSCTL_RCGCGPIO_R & 0x20)==0);
+      while((SYSCTL_PRGPIO_R & 0x20)==0);
 
       GPIO_PORTF_LOCK_R = 0x4C4F434B; // unlock
   		GPIO_PORTF_CR_R = 0x0F;
@@ -177,6 +177,7 @@ SYSCTL_RCGCGPIO_R |= 0x04;   // ENABLE clock for C
 while((SYSCTL_PRGPIO_R & 0x04) == 0){}
 GPIO_PORTC_LOCK_R = 0x4C4F434B; // remove lock
 GPIO_PORTC_CR_R = 0xC0;
+UART3_CTL_R&=~(0x01);	
 UART3_IBRD_R=104;  // Baud Rate at 9600
 UART3_FBRD_R=11;   // fraction of Baud rate
 UART3_LCRH_R=0x0070; // 1 stop bit and 8 bit length and also parity off
@@ -246,12 +247,12 @@ lastPoint[0]=currentPoint[0];
 lastPoint[1]=currentPoint[1];
 
 }
-char uartGpsReadChar(void){
+ char uartGpsReadChar(void){
 while((UART3_FR_R & 0x010)!=0){}
 
-
-return UART3_DR_R;
+return(char)(UART3_DR_R &0xff);
 }
+ 
 void uartWifiWriteString(char * data){   
 	int n = strlen(data);
 	while(n>0){
