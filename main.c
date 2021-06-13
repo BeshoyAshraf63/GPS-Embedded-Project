@@ -84,7 +84,7 @@ void portB_segments_init(void){
 
 	GPIO_PORTB_PCTL_R = 0x00000000; // used as GPIO so PCTL and AMSEL are reset
 	GPIO_PORTB_DIR_R|=0x7F;
-	
+
   }
 
 void uart_Gps_Init(void){
@@ -275,7 +275,7 @@ void initFunc(void){
 	portE_enables_init();
 	portB_segments_init();
 	portF_led_init();
-	uart_GpsInit();
+	uart_Gps_Init();
 	uart_Wifi_Init();
 	GPIO_PORTF_DATA_R|= 0x02;
   }
