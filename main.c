@@ -9,7 +9,7 @@
 #define R 6371000
 #define DISTINATION_OFFSET 10
 #define MAX_WIFI_TRIES 10
-#define THRESHOLD_SPEED 0
+#define THRESHOLD_SPEED 0.5
 
 uint8_t  numbersArr[10] = {0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f};
 double distance = 0;
@@ -341,7 +341,7 @@ void WifiCommands(char dataToBeSent[85]){
 				break;
 			case 5:
 				uartWifiWriteString(postData);
-				strcpy(currentWifiCommandCheck, "SEND OK\r\n");
+				strcpy(currentWifiCommandCheck, "terminator");
 				currentWifiCommand = 6;
 				break;
 			case 6:
