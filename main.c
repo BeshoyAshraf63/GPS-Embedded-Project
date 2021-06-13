@@ -104,7 +104,7 @@ void uart_Wifi_Init(){
   GPIO_PORTD_AFSEL_R |= 0xC0;           // enable alt funct on PD6-7
   GPIO_PORTD_DEN_R |= 0xC0;             // enable digital I/O on PD6-7
                                         // configure PD6-7 as UART
-  
+
 		GPIO_PORTD_PCTL_R = (GPIO_PORTD_PCTL_R&0x00FFFFFF)+0x11000000;
   GPIO_PORTD_AMSEL_R &= ~0xC0;          // disable analog functionality on PD
   UART2_CTL_R &= ~(0x01);      					// disable UART
@@ -205,7 +205,7 @@ uint8_t parseString(char * str, char parsedStr[15][20]){
 	uint8_t i = 0, j = 0;
 	while(*str != '\0'){
 		if(*str == ','){
-			parsedStr[i][j] = '\0';	
+			parsedStr[i][j] = '\0';
 			i++;
 			j = 0;
 		}else{
@@ -252,7 +252,7 @@ int8_t getLength(char *str){
 void setLastPoint(void){
 lastPoint[0]=currentPoint[0];
 lastPoint[1]=currentPoint[1];
- 
+
 }
 char uartGpsReadChar(void){
 while((UART3_FR_R & 0x010)!=0){}
@@ -273,7 +273,7 @@ __irq void UART2_Handler(){
 		*wifiDataPtr = data;
 	wifiDataPtr ++;
 	*wifiDataPtr = '\0';
-		
+
 	}
 }
 
@@ -302,7 +302,7 @@ void WifiCommands(char dataToBeSent[85]){
 				strcpy(currentWifiCommandCheck, "OK\r\n");
 				currentWifiCommand = 1;
 				break;
-			case 1:	
+			case 1:
 				uartWifiWriteString("AT+CWMODE=1\r\n");
 				strcpy(currentWifiCommandCheck, "OK\r\n");
 				currentWifiCommand = 2;
@@ -360,35 +360,56 @@ void getCoordinates(char parsedStr[15][20], double coordinates[2]){
 
 
 int main(void){
+	uint8_t firstReading = 1;
+	uint8_t secondReading = 0;
 	initFunc();
 	__enable_irq();
 	delay(1000);
+	WifiCommands("connecting");
 	while(1){
-		double point1[2];
-		double point2[2];
-		double point3[2];
+		double speed;
+		if(reachedDistination == 0){
+			char receivedStr[85];
+			uint8_t validData = 0;
+			char parsedStr[15][20];
+			while(validData == 0){
+				uartGpsReadLine(receivedStr, 85);
+				if(validateData(receivedStr) == 1) validData = 1;
+			}
+			if(parseString(receivedStr, parsedStr) == 0) {
+				GPIO_PORTF_DATA_R ^= 0x02;
+				WifiCommands("connecting");
+				firstReading = 1;
+				continue;
+			}
+			if(firstReading) {
+				delay(3000);
+				firstReading = 0;
+				secondReading = 1;
+				continue;
+			}
+			getCoordinates(parsedStr, currentPoint);
+			if(secondReading) {
+				secondReading = 0;
+				setLastPoint();
+				GPIO_PORTF_DATA_R &= ~(0x02);
+			}
+			speed = atof(parsedStr[7]);
+			if(speed >= THRESHOLD_SPEED){
+				distance  += getDistance(currentPoint, lastPoint);
+			}
+			setLastPoint();
+			if(getDistance(currentPoint, destinationPoint) <= DISTINATION_OFFSET) reachedDistination = 1;
 
-		distance = 1234;
-		delay(5000);
-
-		point1[0] = 30.06314876356195;	//lat 1
-		point1[1] = 31.278634458791736;	//long 1
-		point2[0] = 30.063654887314705;	//lat 2
-		point2[1] = 31.280120463348382;	//long 2
-		point3[0] = 30.063749460433865;	//lat 3
-		point3[1] = 31.27837988633654;	//long 3
-
-		distance  = getDistance(point1, point3);
-		if(distance > 100){
+			WifiCommands(receivedStr);
+			delay(500);
+			WifiCommands(receivedStr);
+		}else{
 			GPIO_PORTF_DATA_R |= 0x08;
+			while(1){
+				WifiCommands("reached distination");
+				delay(1000);
+			}
 		}
-		
-		delay(5000);
-		distance  = getDistance(point1, point2);
-		if(distance > 100){
-			GPIO_PORTF_DATA_R |= 0x08;
-		}
-		delay(5000);
-		GPIO_PORTF_DATA_R &= ~0x08;
 	}
 }
