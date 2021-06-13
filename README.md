@@ -1,8 +1,6 @@
-# GPS Embedded Systems Project - Milestone 1
+# GPS Embedded Systems Project - Milestone 2
 
-Till now the project can display any data on the 7-segment. It works in an asynchronous way.
-Using Systick timer interrupt, We can put as much as delays as we want and still can multiplex between segments in parallel with the code. This is due to the fact the 4-digit 7 segment has only 7 pins for showing digits and 4 pins for enables which mean multiplexing is necessary to shuffle very fast between segments so they appear to be all on at the same time
-This wasn't possible without interrupts because any delays in the code would delay the multiplexing
+This project is not just an embedded systems project. It’s an IOT device (Internet Of Things). A GPS tracker system that measures the distance moved very accurately and can give an indication when reaching the destination point. Not only that, but it also send the data fetched from the GPS module to a live web server through esp8266 Wi-Fi module and POST requests and can be tracked through a website that communicate with the same server from anywhere on the Earth in real time.
 
 ## Features
 
@@ -10,20 +8,9 @@ This wasn't possible without interrupts because any delays in the code would del
 - displaying the distance on the 7-segment dynamically without needing to call any functions due to using interrupts
 - Delay function using Systick timer which is very accurate
 
-## Milestone 1 Video Link - the video is in the google drive link
+## Milestone 2 Video Link - the video is in the google drive link
 
--[https://drive.google.com/drive/folders/1meHJXxR7G9u8Ix5Ae7IydJRoFLhzxYVj?usp=sharing](https://drive.google.com/drive/folders/1meHJXxR7G9u8Ix5Ae7IydJRoFLhzxYVj?usp=sharing)
-
-
-## Actual distances used in the code from Google maps
-
-The points in the code are hard coded and these are the points from google maps with the actual distance
-![distance 1 = 70 m](https://drive.google.com/uc?export=view&id=1fX6pj1rbF3kSjeLXN-UF39tad5kuO_Ze)
-This distance = 70 m displayed as 71 m
-![distance 2 = 150 m](https://drive.google.com/uc?export=view&id=1SXyK8B0Fn1jJiQevjKttXPJ_zPpqPyif)
-This distance = 150 m displayed as 153 m
-
-this small error is of course due to these points are selection of the points on google maps
+-[https://drive.google.com/drive/folders/16MSDlXN5nF6K6GrqkvRkKz80mx3kMstn?usp=sharing](https://drive.google.com/drive/folders/16MSDlXN5nF6K6GrqkvRkKz80mx3kMstn?usp=sharing)
 
 ## Team members and IDs
 
