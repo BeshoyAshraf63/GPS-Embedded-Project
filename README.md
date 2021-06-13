@@ -6,7 +6,9 @@ This project is not just an embedded systems project. It’s an IOT device (Inte
 - Calculating the distance between any two points on Earth using haversine formula 
 - displaying the distance on the 7-segment dynamically without needing to call any functions due to using interrupts
 - Delay function using Systick timer which is very accurate 
-- Distance can be calculated in non-straight line paths with a very high accuracy 
+- Distance can be calculated in non-straight line paths with a very high accuracy
+- Sends the calculated distance and also the received data (including Latitude, Longitude, Real time, Date, Speed in m/s) to a live webserver that can be accessed from a website anywhere on the Earth. 
+- Wi-Fi communications are done using Uart interrupt which run in the background in order not to delay the main code and functionality (Reading GPS data).  
 
 
 ## Milestone 2 Video Link - the video is in the google drive link
