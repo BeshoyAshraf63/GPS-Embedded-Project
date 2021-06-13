@@ -22,11 +22,11 @@ This project is not just an embedded systems project. It’s an IOT device (Inte
 
 ## Google maps distance test
 
-![distance = 220 m](https://drive.google.com/uc?export=view&id=16MSDlXN5nF6K6GrqkvRkKz80mx3kMstn)
+![distance = 220 m](https://drive.google.com/uc?export=view&id=17CagpQ1zxV63AW_p7KCFMnB77a1L3Q7A)
 
 ## Circuit Schematic
 
-![schematic](https://drive.google.com/uc?export=view&id=16MSDlXN5nF6K6GrqkvRkKz80mx3kMstn)
+![schematic](https://drive.google.com/uc?export=view&id=1lK2VsDdq5iyBMMCHbsX9TxOLgeESZa4i)
 
 ## Team members and IDs
 
