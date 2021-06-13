@@ -4,8 +4,9 @@ This project is not just an embedded systems project. It’s an IOT device (Inte
 
 ## Features
 - Calculating the distance between any two points on Earth using haversine formula 
-- displaying the distance on the 7-segment dynamically without needing to call any functions due to using interrupts 
-
+- displaying the distance on the 7-segment dynamically without needing to call any functions due to using interrupts
+- Delay function using Systick timer which is very accurate 
+- Distance can be calculated in non-straight line paths with a very high accuracy 
 
 
 ## Milestone 2 Video Link - the video is in the google drive link
